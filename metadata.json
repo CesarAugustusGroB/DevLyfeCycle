@@ -1,0 +1,5 @@
+{
+  "name": "DevLifecycle Manager",
+  "description": "A technical project management tool tracking code maturity states (Creating, Polishing, Expanding, Stable) with AI-powered project breakdown and gap analysis.",
+  "requestFramePermissions": []
+}
