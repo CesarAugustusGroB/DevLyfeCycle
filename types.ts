@@ -1,5 +1,5 @@
 
-export type LifecycleState = 'CREATING' | 'FIX/POLISH' | 'EXPANDING' | 'STABLE';
+export type LifecycleState = 'BACKLOG' | 'CREATING' | 'FIX/POLISH' | 'EXPANDING' | 'STABLE';
 
 export interface ContextFile {
   id: string;
@@ -23,6 +23,7 @@ export interface Project {
   title: string;
   repoUrl: string;
   description: string;
+  scope: string;
   goal: string;
   features: Feature[];
   lastUpdated: string;
@@ -31,6 +32,7 @@ export interface Project {
 export interface ProjectAnalysisResponse {
   title: string;
   description: string;
+  scope: string;
   goal: string;
   features: { name: string; notes: string }[];
 }
