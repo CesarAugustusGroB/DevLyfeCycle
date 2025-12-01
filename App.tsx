@@ -19,7 +19,9 @@ import {
   X,
   Check,
   Clock,
-  GripVertical
+  GripVertical,
+  Download,
+  Upload
 } from 'lucide-react';
 import {
   DndContext,
@@ -190,7 +192,7 @@ interface SortableFeatureRowProps extends FeatureRowProps {
   id: string;
 }
 
-const SortableFeatureRow = (props: SortableFeatureRowProps) => {
+const SortableFeatureRow: React.FC<SortableFeatureRowProps> = ({ id, ...props }) => {
   const {
     attributes,
     listeners,
@@ -198,7 +200,7 @@ const SortableFeatureRow = (props: SortableFeatureRowProps) => {
     transform,
     transition,
     isDragging
-  } = useSortable({ id: props.id });
+  } = useSortable({ id });
 
   const style = {
     transform: CSS.Transform.toString(transform),
@@ -479,6 +481,43 @@ export default function App() {
     }
   }
 
+  const handleExport = () => {
+    const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(projects, null, 2));
+    const downloadAnchorNode = document.createElement('a');
+    downloadAnchorNode.setAttribute("href", dataStr);
+    downloadAnchorNode.setAttribute("download", "devlifecycle-data.json");
+    document.body.appendChild(downloadAnchorNode); // required for firefox
+    downloadAnchorNode.click();
+    downloadAnchorNode.remove();
+  };
+
+  const handleImport = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (!file) return;
+
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      try {
+        const content = e.target?.result as string;
+        const parsedProjects = JSON.parse(content);
+        if (Array.isArray(parsedProjects)) {
+          // Basic validation could be added here
+          setProjects(parsedProjects);
+          saveProjects(parsedProjects); // Save immediately to persistence
+          alert('Projects imported successfully!');
+        } else {
+          alert('Invalid file format: Expected an array of projects.');
+        }
+      } catch (error) {
+        console.error('Error importing file:', error);
+        alert('Failed to parse JSON file.');
+      }
+    };
+    reader.readAsText(file);
+    // Reset input so same file can be selected again if needed
+    event.target.value = '';
+  };
+
   // --- Render ---
 
   // Stats for active project
@@ -552,6 +591,26 @@ export default function App() {
             </h1>
           </div>
           <div className="flex items-center gap-4">
+            <div className="flex items-center gap-2 mr-4">
+              <button
+                onClick={handleExport}
+                className="flex items-center gap-2 px-3 py-1.5 text-xs font-medium text-slate-300 bg-slate-800/50 hover:bg-slate-800 border border-white/5 rounded-md transition-colors"
+                title="Export Data to JSON"
+              >
+                <Download className="w-3.5 h-3.5" />
+                Export
+              </button>
+              <label className="flex items-center gap-2 px-3 py-1.5 text-xs font-medium text-slate-300 bg-slate-800/50 hover:bg-slate-800 border border-white/5 rounded-md transition-colors cursor-pointer">
+                <Upload className="w-3.5 h-3.5" />
+                Import
+                <input
+                  type="file"
+                  accept=".json"
+                  onChange={handleImport}
+                  className="hidden"
+                />
+              </label>
+            </div>
             <a
               href="https://github.com"
               target="_blank"
